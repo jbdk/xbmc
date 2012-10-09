@@ -914,8 +914,8 @@ void CGUISettings::Initialize()
 #endif
   AddSeparator(loc, "locale.sep3");
   AddString(loc, "locale.audiolanguage", 285, "original", SPIN_CONTROL_TEXT);
-  AddString(loc, "locale.audiolanguage2", 286, "", SPIN_CONTROL_TEXT);
-  AddString(loc, "locale.subtitlelanguage", 287, "original", SPIN_CONTROL_TEXT);
+  AddString(loc, "locale.audiolanguage2", 310, "original", SPIN_CONTROL_TEXT);
+  AddString(loc, "locale.subtitlelanguage", 286, "original", SPIN_CONTROL_TEXT);
 
   CSettingsCategory* fl = AddCategory(SETTINGS_APPEARANCE, "filelists", 14081);
   AddBool(fl, "filelists.showparentdiritems", 13306, true);

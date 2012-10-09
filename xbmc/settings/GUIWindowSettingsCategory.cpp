@@ -474,7 +474,7 @@ void CGUIWindowSettingsCategory::CreateSettings()
       FillInLanguages(pSetting);
       continue;
     }
-    else if (strSetting.Equals("locale.audiolanguage") || strSetting.Equals("locale.subtitlelanguage"))
+	else if (strSetting.Left(20).Equals("locale.audiolanguage") || strSetting.Equals("locale.subtitlelanguage"))
     {
       AddSetting(pSetting, group->GetWidth(), iControlID);
       vector<CStdString> languages;
