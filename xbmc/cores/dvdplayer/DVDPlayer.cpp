@@ -753,9 +753,8 @@ void CDVDPlayer::OpenDefaultStreams()
   valid   = false;
   for(SelectionStreams::iterator it = streams.begin(); it != streams.end() && !valid; ++it)
   {
-	// Dont allow same language for audio and subtitles, unless subs are forced
-    if(!audioLang.IsEmpty() && audioLang==it->language && !(it->flags & CDemuxStream::FLAG_FORCED))
-      continue;
+	if(!audioLang.IsEmpty() && audioLang==it->language)
+		m_dvdPlayerVideo.EnableSubtitle(false);
 
     if(OpenSubtitleStream(it->id, it->source))
     {
@@ -765,10 +764,7 @@ void CDVDPlayer::OpenDefaultStreams()
     }
   }
   if(!valid)
-  {
-    m_dvdPlayerSubtitle.SendMessage(new CDVDMsg(CDVDMsg::GENERAL_RESET));
     CloseSubtitleStream(true);
-  }
 
   // open teletext stream
   streams = m_SelectionStreams.Get(STREAM_TELETEXT);
