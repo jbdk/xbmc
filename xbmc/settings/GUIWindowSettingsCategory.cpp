@@ -1478,8 +1478,9 @@ void CGUIWindowSettingsCategory::OnSettingChanged(CBaseSettingControl *pSettingC
     if (g_graphicsContext.IsFullScreenRoot())
       g_graphicsContext.SetVideoResolution(g_graphicsContext.GetVideoResolution(), true);
   }
-  else if (strSetting.Equals("locale.audiolanguage"))
+  else if (strSetting.Equals("locale.audiolanguage") || strSetting.Equals("locale.audiolanguage2"))
   { // new audio language chosen...
+    int index = strSetting.Equals("locale.audiolanguage2") ? 1 : 0;
     CSettingString *pSettingString = (CSettingString *)pSettingControl->GetSetting();
     CGUISpinControlEx *pControl = (CGUISpinControlEx *)GetControl(pSettingControl->GetID());
     int iLanguage = pControl->GetValue();
@@ -1489,7 +1490,7 @@ void CGUIWindowSettingsCategory::OnSettingChanged(CBaseSettingControl *pSettingC
         g_guiSettings.SetString(strSetting, "original");
       else
         g_guiSettings.SetString(strSetting, "default");
-      g_langInfo.SetAudioLanguage("");
+      g_langInfo.SetAudioLanguage(index, "");
     }
     else
     {
@@ -1497,7 +1498,7 @@ void CGUIWindowSettingsCategory::OnSettingChanged(CBaseSettingControl *pSettingC
       if (strLanguage != pSettingString->GetData())
       {
         g_guiSettings.SetString(strSetting, strLanguage);
-        g_langInfo.SetAudioLanguage(strLanguage);
+        g_langInfo.SetAudioLanguage(index, strLanguage);
       }
     }
   }

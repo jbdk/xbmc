@@ -149,9 +149,21 @@ static bool PredicateAudioPriority(const SelectionStream& lh, const SelectionStr
 
   if(!g_guiSettings.GetString("locale.audiolanguage").Equals("original"))
   {
-    CStdString audio_language = g_langInfo.GetAudioLanguage();
-    PREDICATE_RETURN(audio_language.Equals(lh.language.c_str())
+    CStdString audio_language = g_langInfo.GetAudioLanguage(0);
+    CStdString audio_language2 = "eng";
+
+	bool eq1l = audio_language.Equals(lh.language.c_str());
+	bool eq1r = audio_language.Equals(rh.language.c_str());
+	bool eq2l = audio_language2.Equals(lh.language.c_str());
+	bool eq2r = audio_language2.Equals(rh.language.c_str());
+
+	if(eq1l || eq1r)
+	{
+      PREDICATE_RETURN(audio_language.Equals(lh.language.c_str())
                    , audio_language.Equals(rh.language.c_str()));
+	}
+    PREDICATE_RETURN(audio_language2.Equals(lh.language.c_str())
+                 , audio_language2.Equals(rh.language.c_str()));
   }
 
   PREDICATE_RETURN(lh.flags & CDemuxStream::FLAG_DEFAULT
@@ -195,8 +207,8 @@ static bool PredicateSubtitlePriority(const SelectionStream& lh, const Selection
                    , subtitle_language.Equals(rh.language.c_str()));
   }
 
-  PREDICATE_RETURN(lh.flags & CDemuxStream::FLAG_DEFAULT
-                 , rh.flags & CDemuxStream::FLAG_DEFAULT);
+  //PREDICATE_RETURN(lh.flags & CDemuxStream::FLAG_DEFAULT
+  //               , rh.flags & CDemuxStream::FLAG_DEFAULT);
 
   return false;
 }
@@ -721,10 +733,14 @@ void CDVDPlayer::OpenDefaultStreams()
     streams = m_SelectionStreams.Get(STREAM_AUDIO, PredicateAudioPriority);
   valid   = false;
 
+  CStdString audioLang;
   for(SelectionStreams::iterator it = streams.begin(); it != streams.end() && !valid; ++it)
   {
     if(OpenAudioStream(it->id, it->source))
+	{
+      audioLang = it->language;
       valid = true;
+	}
   }
   if(!valid)
     CloseAudioStream(true);
@@ -737,6 +753,10 @@ void CDVDPlayer::OpenDefaultStreams()
   valid   = false;
   for(SelectionStreams::iterator it = streams.begin(); it != streams.end() && !valid; ++it)
   {
+	// Dont allow same language for audio and subtitles, unless subs are forced
+    if(!audioLang.IsEmpty() && audioLang==it->language && !(it->flags & CDemuxStream::FLAG_FORCED))
+      continue;
+
     if(OpenSubtitleStream(it->id, it->source))
     {
       valid = true;
@@ -745,7 +765,10 @@ void CDVDPlayer::OpenDefaultStreams()
     }
   }
   if(!valid)
+  {
+    m_dvdPlayerSubtitle.SendMessage(new CDVDMsg(CDVDMsg::GENERAL_RESET));
     CloseSubtitleStream(true);
+  }
 
   // open teletext stream
   streams = m_SelectionStreams.Get(STREAM_TELETEXT);
